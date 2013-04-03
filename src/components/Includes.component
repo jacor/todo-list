@@ -1,0 +1,25 @@
+<apex:component >
+	 <script type="text/javascript">
+		jQuery.noConflict();
+		var __sfdcSessionId = '{!GETSESSIONID()}';
+	</script>
+	<script src="/soap/ajax/27.0/connection.js" type="text/javascript"></script>
+	<script src="/soap/ajax/27.0/apex.js" type="text/javascript"></script>
+	
+	<apex:includeScript value="{!URLFOR($Resource.includes, 'jquery-ui-1.10.2.custom/js/jquery-1.9.1.js')}" />
+	<apex:includeScript value="{!URLFOR($Resource.includes, 'jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js')}" />
+	<apex:stylesheet value="{!URLFOR($Resource.includes, 'jquery-ui-1.10.2.custom/css/redmond/jquery-ui-1.10.2.custom.css')}" />
+	
+	<apex:includeScript value="{!URLFOR($Resource.includes, 'underscore.js')}" />
+	<apex:includeScript value="{!URLFOR($Resource.includes, 'knockout-2.2.1.js')}" />
+	<apex:includeScript value="{!URLFOR($Resource.includes, 'knockout.mapping-latest.js')}" />
+	<apex:includeScript value="{!URLFOR($Resource.includes, 'knockout.validation.js')}" />
+	
+	<apex:includeScript value="{!URLFOR($Resource.includes, 'todomvc-common/base.js')}" />
+	<apex:stylesheet value="{!URLFOR($Resource.includes, 'todomvc-common/base.css')}" />
+	<apex:includeScript value="{!URLFOR($Resource.includes, 'director.js')}" />
+	
+	<apex:includeScript value="{!URLFOR($Resource.includes, 'bootstrap/js/bootstrap.js')}" />
+	<apex:stylesheet value="{!URLFOR($Resource.includes, 'bootstrap/css/bootstrap.css')}" />
+	<apex:stylesheet value="{!URLFOR($Resource.includes, 'bootstrap/css/bootstrap-responsive.css')}" />
+</apex:component>
