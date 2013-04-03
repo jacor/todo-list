@@ -48,9 +48,10 @@ jQuery(function(){
 	};
 
 	// represent a single todo item
-	var Todo = function (title, completed) {
+	var Todo = function (title, recordId, completed) {
+		this.recordId = ko.observable(recordId == null? '' : recordId);
 		this.title = ko.observable(title);
-		this.completed = ko.observable(completed);
+		this.completed = ko.observable(completed == null? false: completed);
 		this.editing = ko.observable(false);
 	};
 
@@ -60,7 +61,7 @@ jQuery(function(){
 
 		// map array of passed in todos to an observableArray of Todo objects
 		self.todos = ko.observableArray(ko.utils.arrayMap(todos, function (todo) {
-			return new Todo(todo.title, todo.completed);
+			return new Todo(todo.title, todo.recordId, todo.completed);
 		}));
 
 		// store the new todo value being entered
@@ -152,23 +153,34 @@ jQuery(function(){
 
 		// internal computed observable that fires whenever anything changes in our todos
 		ko.computed(function () {
-			// store a clean copy to local storage, which also creates a dependency on the observableArray and all observables in each item
-			localStorage.setItem('todos-knockoutjs', ko.toJSON(self.todos));
+			window.todo.persistTodoList(self.todos, function(todos){
+				// TODO: handle the response and set the values intelligently to rebind
+				console.log(_.map(ko.toJS(self.todos()), function(value, key, list){
+					return value;
+				}));
+				/*
+				self.todos.removeAll();
+				_.each(todos, function(element, index, list){
+					self.todos.push(element);
+				});
+				*/
+			});
 		}).extend({
 			throttle: 500
 		}); // save at most twice per second
 	};
+	console.log('sdsd2');
+	console.log(window.todo.loadTodoList);
+	window.todo.loadTodoList(function(todos){
+		// bind a new instance of our view model to the page
+		var viewModel = new ViewModel(todos || []);
+		ko.applyBindings(viewModel);
 
-	// check local storage for todos
-	var todos = ko.utils.parseJson(localStorage.getItem('todos-knockoutjs'));
+		// set up filter routing
+		/*jshint newcap:false */
+		Router({'/:filter': viewModel.showMode}).init();
+	});
 
-	// bind a new instance of our view model to the page
-	var viewModel = new ViewModel(todos || []);
-	ko.applyBindings(viewModel);
-
-	// set up filter routing
-	/*jshint newcap:false */
-	Router({'/:filter': viewModel.showMode}).init();
 })();
 
 });

@@ -1,4 +1,4 @@
-<apex:component >
+<apex:component controller="TodoListService">
 	<head>
 		<meta charset="utf-8" />
 		<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
@@ -53,6 +53,47 @@
 			<p>Patches/fixes for cross-browser compat: <a href="http://twitter.com/addyosmani">Addy Osmani</a></p>
 			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
 		</footer>
-		<apex:includeScript value="{!URLFOR($Resource.app)}" />
 	</body>
+	<script>
+		window.todo = {};
+		window.todo.loadTodoList = function(callback){
+			console.log('sdsd');
+			Visualforce.remoting.Manager.invokeAction(
+				'{!$RemoteAction.TodoListService.getTodoList}',
+				function(result, event){
+					if(event.type == 'exception'){
+						 alert('Your session has timed out.');
+					}
+					if(event.status){
+						callback.apply(this, [result]);
+					}
+					else{
+						console.log('error');
+						console.log(result);
+					}
+				},
+				{escape: true} );
+		};
+		window.todo.persistTodoList = function(todos, callback){
+			Visualforce.remoting.Manager.invokeAction(
+				'{!$RemoteAction.TodoListService.saveTodoList}',
+				_.map(ko.toJS(todos()), function(value, key, list){
+					return value;
+				}),
+				function(result, event){
+					if(event.type == 'exception'){
+						 alert('Your session has timed out.');
+					}
+					if(event.status){
+						callback.apply(this, [result]);
+					}
+					else{
+						console.log('error');
+						console.log(result);
+					}
+				},
+				{escape: true} );
+		};
+	</script>
+	<apex:includeScript value="{!URLFOR($Resource.app)}" />
 </apex:component>
