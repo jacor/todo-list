@@ -46,24 +46,37 @@ jQuery(function(){
 			}, 0);
 		}
 	};
-
+	
+	var TodoContact = function(name, recordId){
+		this.name = ko.observable(name);
+		this.recordId = ko.observable(recordId);
+	}
 	// represent a single todo item
-	var Todo = function (title, recordId, completed) {
+	var Todo = function (title, recordId, completed, assignee) {
 		this.recordId = ko.observable(recordId == null? '' : recordId);
 		this.title = ko.observable(title);
 		this.completed = ko.observable(completed == null? false: completed);
 		this.editing = ko.observable(false);
+		this.assignee = ko.observable(assignee);
 	};
-
+	
 	// our main view model
 	var ViewModel = function (todos) {
 		var self = this;
 
 		// map array of passed in todos to an observableArray of Todo objects
 		self.todos = ko.observableArray(ko.utils.arrayMap(todos, function (todo) {
-			return new Todo(todo.title, todo.recordId, todo.completed);
+			return new Todo(
+					todo.title, 
+					todo.recordId, 
+					todo.completed, 
+					new TodoContact(
+							todo.assignee.name, 
+							todo.assignee.recordId));
 		}));
-
+		
+		self.contacts = ko.observableArray([]);
+		
 		// store the new todo value being entered
 		self.current = ko.observable();
 
@@ -150,27 +163,37 @@ jQuery(function(){
 		self.getLabel = function (count) {
 			return ko.utils.unwrapObservable(count) === 1 ? 'item' : 'items';
 		};
+		
+		self.assignContact = function(todo, contact){
+			todo.assignee(contact);
+		}
 
 		// internal computed observable that fires whenever anything changes in our todos
 		ko.computed(function () {
 			window.todo.persistTodoList(self.todos, function(todos){
-				// TODO: handle the response and set the values intelligently to rebind
-				console.log(_.map(ko.toJS(self.todos()), function(value, key, list){
-					return value;
-				}));
-				/*
-				self.todos.removeAll();
 				_.each(todos, function(element, index, list){
-					self.todos.push(element);
+					_.each(self.todos(), function(innerElement, innerIndex, innerList){
+						if(element.title == innerElement.title() && 
+								element.recordId != innerElement.recordId()){
+							
+							innerElement.recordId(element.recordId);
+							innerElement.assignee(element.assignee);
+						}
+					});
 				});
-				*/
 			});
 		}).extend({
 			throttle: 500
 		}); // save at most twice per second
+		
+		self.reloadContacts = function(){
+			window.todo.loadContacts(function(contacts){
+				_.each(contacts, function(element, index, list){
+					self.contacts.push(new TodoContact(element.name, element.recordId));
+				});
+			});
+		}
 	};
-	console.log('sdsd2');
-	console.log(window.todo.loadTodoList);
 	window.todo.loadTodoList(function(todos){
 		// bind a new instance of our view model to the page
 		var viewModel = new ViewModel(todos || []);
@@ -179,6 +202,9 @@ jQuery(function(){
 		// set up filter routing
 		/*jshint newcap:false */
 		Router({'/:filter': viewModel.showMode}).init();
+		
+		// load contacts
+		viewModel.reloadContacts();
 	});
 
 })();

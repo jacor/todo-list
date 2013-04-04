@@ -1,9 +1,13 @@
 <apex:page showHeader="false" id="SiteTemplate">
+	<c:Includes />
   <apex:stylesheet value="{!URLFOR($Resource.SiteSamples, 'SiteStyles.css')}"/>
-  <apex:insert name="header">
-    <c:SiteHeader />
-    <hr/>
-  </apex:insert>
+  <div class="navbar navbar-fixed-top">
+  	<div class="navbar-inner">
+	  <apex:insert name="header">
+	    <c:SiteHeader />
+	  </apex:insert>
+	</div>
+  </div>
   <apex:insert name="body"/>
   <apex:insert name="footer">
     <hr/>

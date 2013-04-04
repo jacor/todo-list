@@ -15,11 +15,12 @@
 	<apex:includeScript value="{!URLFOR($Resource.includes, 'knockout.mapping-latest.js')}" />
 	<apex:includeScript value="{!URLFOR($Resource.includes, 'knockout.validation.js')}" />
 	
+	<apex:includeScript value="{!URLFOR($Resource.includes, 'bootstrap/js/bootstrap.js')}" />
+	<apex:stylesheet value="{!URLFOR($Resource.includes, 'bootstrap/css/bootstrap.css')}" />
+	<apex:stylesheet value="{!URLFOR($Resource.includes, 'bootstrap/css/bootstrap-responsive.css')}" />
+	
 	<apex:includeScript value="{!URLFOR($Resource.includes, 'todomvc-common/base.js')}" />
 	<apex:stylesheet value="{!URLFOR($Resource.includes, 'todomvc-common/base.css')}" />
 	<apex:includeScript value="{!URLFOR($Resource.includes, 'director.js')}" />
 	
-	<apex:includeScript value="{!URLFOR($Resource.includes, 'bootstrap/js/bootstrap.js')}" />
-	<apex:stylesheet value="{!URLFOR($Resource.includes, 'bootstrap/css/bootstrap.css')}" />
-	<apex:stylesheet value="{!URLFOR($Resource.includes, 'bootstrap/css/bootstrap-responsive.css')}" />
 </apex:component>

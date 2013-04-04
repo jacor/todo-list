@@ -1,7 +1,9 @@
 <apex:page showHeader="false" standardStylesheets="false" docType="html-5.0" language="en">
-	<div class="row-fluid">
-		<div class="span12 offset10">
-			<c:ToDo />
-		</div>
-	</div>
+	<apex:composition template="{!$Site.Template}">
+		<apex:define name="body">
+			<div>
+				<c:ToDo />
+			</div>
+		</apex:define>
+	</apex:composition>
 </apex:page>

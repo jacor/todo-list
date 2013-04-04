@@ -8,8 +8,9 @@ public with sharing class SiteRegisterController {
     
     public SiteRegisterController () {
     }
-
-    public String username {get; set;}
+	public String firstname {get; set;}
+	public String lastname {get; set;}
+	public String username {get; set;}
     public String email {get; set;}
     public String password {get; set {password = value == null ? value : value.trim(); } }
     public String confirmPassword {get; set { confirmPassword = value == null ? value : value.trim(); } }
@@ -26,9 +27,22 @@ public with sharing class SiteRegisterController {
         	ApexPages.addMessage(msg);
             return null;
         }    
+        if(firstname == null || firstname.length() == 0){
+			ApexPages.Message msg = new ApexPages.Message(ApexPages.Severity.ERROR, 'Enter a first name');
+        	ApexPages.addMessage(msg);
+            return null;
+        }
+        if(lastname == null || lastname.length() == 0){
+			ApexPages.Message msg = new ApexPages.Message(ApexPages.Severity.ERROR, 'Enter a last name');
+        	ApexPages.addMessage(msg);
+            return null;
+        }
+        
         User u = new User();
         u.Username = username;
         u.Email = email;
+        u.FirstName = firstname;
+        u.LastName = lastname;
         u.CommunityNickname = communityNickname;
         
         String accountId = PORTAL_ACCOUNT_ID;

@@ -3,4 +3,5 @@ public with sharing class Todo {
 	public String title;
 	public Boolean completed;
 	public Boolean editing;
+	public TodoContact assignee;
 }

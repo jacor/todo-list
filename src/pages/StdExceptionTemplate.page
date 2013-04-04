@@ -8,7 +8,7 @@
       <br/>
       <apex:outputPanel layout="block" styleClass="topPanel">
         <apex:panelGrid width="758" cellpadding="0" cellspacing="0" bgcolor="white" columns="3">
-          <apex:image url="{!URLFOR($Resource.SiteSamples, 'img/clock.png')}"/>
+          
           <apex:insert name="icon"/>
           <apex:insert name="error"/>
         </apex:panelGrid>
