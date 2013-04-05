@@ -1,11 +1,13 @@
 todo-list
 =========
 
-### Steps To Create Application
+# Steps To Create Application
 - Based on the TodoMVC App: http://todomvc.com/architecture-examples/knockoutjs/
+- Here is the code: https://github.com/addyosmani/todomvc/tree/gh-pages/architecture-examples/knockoutjs
 - Create a new developer org and assign the CEO role to the registered user
 - Create a new force.com site:
-	- App Setup -> Develop -> Site -> New Site
+	- App Setup -> Develop -> Site -> New Site 
+	- Site Label: todo-list, Site Name: todo_list, Active: checked
 	- Use the SiteLogin.page as the site home page
 	- Enable the customer portal: Customize -> Customer Portal -> Settings -> Edit -> Enable -> Continue
 	- Edit the customer portal, 
@@ -14,11 +16,39 @@ todo-list
 		- Set New User Form URL to SiteRegister
 		- Set the Default New User License and Default New User Profile to High Volume Customer Portal
 	- Enable login for the site: App Setup -> Develop -> Site -> Login Settings -> Edit, set My Profile Page to MyProfilePage
-- Register a new user on the site:
+
+## START DEMO HERE
+
+### Register a new user on the site:
 	- Create a new account that all the registered site users will belong to. Call it TodoList Account
 	- Copy the Id of the account and edit the SiteRegisterController to reference the account.
 	- Register a new user by clicking the register link
 	- Add the FirstName and LastName fields to SiteRegister.page and the SiteRegisterController:
+
+```java
+	public String lastname {get; set;}
+	public String firstname {get; set;}
+```
+ 
+```java
+     if(firstname == null || firstname.length() == 0){
+		ApexPages.Message msg = new ApexPages.Message(ApexPages.Severity.ERROR, 'Enter a first name');
+     	ApexPages.addMessage(msg);
+         return null;
+     }
+     if(lastname == null || lastname.length() == 0){
+		ApexPages.Message msg = new ApexPages.Message(ApexPages.Severity.ERROR, 'Enter a last name');
+     	ApexPages.addMessage(msg);
+         return null;
+     }
+     
+     User u = new User();
+     u.Username = username;
+     u.Email = email;
+     u.FirstName = firstname;
+     u.LastName = lastname;
+     u.CommunityNickname = communityNickname;
+``` 
 
 
 ```html
@@ -42,75 +72,33 @@ todo-list
   </apex:panelGrid> 
 ```
 
-```java
-	public String lastname {get; set;}
-	public String username {get; set;}
-```
- 
-```java
-     if(firstname == null || firstname.length() == 0){
-		ApexPages.Message msg = new ApexPages.Message(ApexPages.Severity.ERROR, 'Enter a first name');
-     	ApexPages.addMessage(msg);
-         return null;
-     }
-     if(lastname == null || lastname.length() == 0){
-		ApexPages.Message msg = new ApexPages.Message(ApexPages.Severity.ERROR, 'Enter a last name');
-     	ApexPages.addMessage(msg);
-         return null;
-     }
-     
-     User u = new User();
-     u.Username = username;
-     u.Email = email;
-     u.FirstName = firstname;
-     u.LastName = lastname;
-     u.CommunityNickname = communityNickname;
-``` 
+### Add some nCino styling
 
 - TODO: Modify the SiteSamples/SiteStyles.css static resource to contain bootstrap styles
-- Add the nCino logos to the SiteSamples static resource in the /img folder
+- Add the nCino logos in content/images to the SiteSamples static resource in the /img folder
 	- nCinoLogo.gif
 	- nCinoLogoBars.gif
-- Modify the generated SitePoweredBy.component to reference {!$Site.Prefix}/img/sites/force_logo.gif
+- Modify the generated SitePoweredBy.component to reference the nCino logo:
 
 ```html
-<apex:outputLink value="http://www.ncino.com"><apex:image url="{!$Site.Prefix}/img/sites/force_logo.gif" styleClass="poweredByImage"/></apex:outputLink>
+<apex:outputLink value="http://www.ncino.com"><apex:image url="{!URLFOR($Resource.SiteSamples, 'img/nCinoLogo.png')}" height="55px" styleClass="poweredByImage"/></apex:outputLink>
 ```
 
 - Search and remove all files in the project that contain:
 
 ```html
 <apex:image url="{!URLFOR($Resource.SiteSamples, 'img/clock.png')}"/>
-
-	
-- Navigate to SiteTemplate.page and wrap all headers in a bootstrap div navbar:
-
-```html
-<apex:page showHeader="false" id="SiteTemplate">
-  <apex:stylesheet value="{!URLFOR($Resource.SiteSamples, 'SiteStyles.css')}"/>
-  <div class="navbar navbar-fixed-top">
-  	<div class="navbar-inner">
-	  <apex:insert name="header">
-	    <c:SiteHeader />
-	  </apex:insert>
-	</div>
-  </div>
-  <apex:insert name="body"/>
-  <apex:insert name="footer">
-    <hr/>
-    <c:SiteFooter />
-    <site:googleAnalyticsTracking />
-  </apex:insert>
-</apex:page>
 ```
 
 - Modify the image in the SiteHeader.component:
 
 ```html
-<apex:image url="{!URLFOR($Resource.SiteSamples, 'img/nCinoLogo.gif')}" style="align: left;" alt="nCino" height="25" title="nCino"/>
+<apex:image url="{!URLFOR($Resource.SiteSamples, 'img/nCinoLogoBars.gif')}" style="align: left;" alt="nCino" height="33" title="nCino"/>
 ```
 
-- Create the web library dependencies:
+### Include bootstrap and other web dependencies
+
+- Create the web library dependencies (can be found in content/web_libs):
 	- Download jquery ui: http://jqueryui.com/download/
 	- Download knockout: http://knockoutjs.com/downloads/knockout-2.2.1.js
 	- Download knockout-mapping: https://raw.github.com/SteveSanderson/knockout.mapping/master/build/output/knockout.mapping-latest.js
@@ -119,31 +107,38 @@ todo-list
 	- Download director: https://raw.github.com/addyosmani/todomvc/gh-pages/architecture-examples/knockoutjs/components/director/build/director.js
 	- Download TodoMvc: https://github.com/addyosmani/todomvc/tree/gh-pages/architecture-examples/knockoutjs/components/todomvc-common 
 	- Create a zip file from the contents: $ zip -r includes.zip * 
-	- Add the zip file as a static resource. Be sure to set the access level to public.
+	- Add the zip file as a static resource. Be sure to set the access level to public; call it includes
 	- Create a new visualforce component that includes all the libaries; call it Includes.component:
 	
 ```html
-	<script src="/soap/ajax/27.0/connection.js" type="text/javascript"></script>
-	<script src="/soap/ajax/27.0/apex.js" type="text/javascript"></script>
-	
-	<apex:includeScript value="{!URLFOR($Resource.includes, 'jquery-ui-1.10.2.custom/js/jquery-1.9.1.js')}" />
-	<apex:includeScript value="{!URLFOR($Resource.includes, 'jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js')}" />
-	<apex:stylesheet value="{!URLFOR($Resource.includes, 'jquery-ui-1.10.2.custom/css/redmond/jquery-ui-1.10.2.custom.css')}" />
-	
-	<apex:includeScript value="{!URLFOR($Resource.includes, 'underscore.js')}" />
-	<apex:includeScript value="{!URLFOR($Resource.includes, 'knockout-2.2.1.js')}" />
-	<apex:includeScript value="{!URLFOR($Resource.includes, 'knockout.mapping-latest.js')}" />
-	<apex:includeScript value="{!URLFOR($Resource.includes, 'knockout.validation.js')}" />
-	
-	<apex:includeScript value="{!URLFOR($Resource.includes, 'todomvc-common/base.js')}" />
-	<apex:stylesheet value="{!URLFOR($Resource.includes, 'todomvc-common/base.css')}" />
-	<apex:includeScript value="{!URLFOR($Resource.includes, 'director.js')}" />
-	
-	<apex:includeScript value="{!URLFOR($Resource.includes, 'bootstrap/js/bootstrap.js')}" />
-	<apex:stylesheet value="{!URLFOR($Resource.includes, 'bootstrap/css/bootstrap.css')}" />
-	<apex:stylesheet value="{!URLFOR($Resource.includes, 'bootstrap/css/bootstrap-responsive.css')}" />
+    <apex:component >
+         <script type="text/javascript">
+            jQuery.noConflict();
+        </script>
+        <script src="/soap/ajax/27.0/connection.js" type="text/javascript"></script>
+        <script src="/soap/ajax/27.0/apex.js" type="text/javascript"></script>
+
+        <apex:includeScript value="{!URLFOR($Resource.includes, 'jquery-ui-1.10.2.custom/js/jquery-1.9.1.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.includes, 'jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.includes, 'jquery-ui-1.10.2.custom/css/redmond/jquery-ui-1.10.2.custom.css')}" />
+
+        <apex:includeScript value="{!URLFOR($Resource.includes, 'underscore.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.includes, 'knockout-2.2.1.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.includes, 'knockout.mapping-latest.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.includes, 'knockout.validation.js')}" />
+
+        <apex:includeScript value="{!URLFOR($Resource.includes, 'bootstrap/js/bootstrap.js')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.includes, 'bootstrap/css/bootstrap.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.includes, 'bootstrap/css/bootstrap-responsive.css')}" />
+
+        <apex:includeScript value="{!URLFOR($Resource.includes, 'todomvc-common/base.js')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.includes, 'todomvc-common/base.css')}" />
+        <apex:includeScript value="{!URLFOR($Resource.includes, 'director.js')}" />
+
+    </apex:component>
 ```
-- Add this component to the SiteTemplate.page
+
+- Add this component to the SiteTemplate.page and wrap all headers in a bootstrap div navbar and move the hrs tags
 
 ```html
 <apex:page showHeader="false" id="SiteTemplate">
@@ -156,7 +151,11 @@ todo-list
 	  </apex:insert>
 	</div>
   </div>
-  <apex:insert name="body"/>
+  <hr/>
+  <hr/>
+	<div>
+  		<apex:insert name="body"/>
+  	</div>
   <apex:insert name="footer">
     <hr/>
     <c:SiteFooter />
@@ -165,17 +164,32 @@ todo-list
 </apex:page>
 ```
 
+- Fix up the SiteLogin, ForgotPassord and SiteRegister header links in SiteHeader.component:
+
+```html
+		<apex:outputLink value="SiteLogin">{!$Label.site.login_button}</apex:outputLink>
+		<apex:outputText value=" | "/>
+		<apex:outputLink value="ForgotPassword">{!$Label.site.forgot_your_password_q}</apex:outputLink>
+		<apex:outputText value=" | " rendered="{!$Site.RegistrationEnabled}"/>
+		<apex:outputLink value="SiteRegister" rendered="{!$Site.RegistrationEnabled}">{!$Label.site.new_user_q}</apex:outputLink>
+	  </apex:panelGroup>
+```
+
+### Add the main web page and port the TodoMVC knockout app
+
 - Create a site home page:
 	- Create a new visualforce page, call it TodoList.page
 	- Be sure to add: showHeader="false" standardStylesheets="false" since we want our own styling
 	- Also set docType="html-5.0" language="en"
 	- Modify the registerUser method of the SiteRegisterController & SiteLoginControllers to pass in the page URL of the TodoList.page to the login() call
+	- Add the page to the site: App Setup -> Develop -> Sites -> Site visualforce pages -> Edit
+ 
 ```html
 <apex:page showHeader="false" standardStylesheets="false" docType="html-5.0" language="en">
 	<apex:composition template="{!$Site.Template}">
 		<apex:define name="body">
 			<div>
-				<c:ToDo />
+				insert content here
 			</div>
 		</apex:define>
 	</apex:composition>
@@ -187,11 +201,91 @@ todo-list
 ```
 
 - Create a ToDo Component
-	- Include the web dependencies in the component
 	- Create a js file called app.js and upload it as a static resource. 
-	- Add the knockout code for the todo app.
-	- Modify the TodoList.page to include the Todo.component and position it using bootstrap fluid rows.
+	- Copy in the knockout code for the todo app.js; be sure to wrap it in jQuery(function(){}); to allow for a ready DOM
+	- Inlcude the app.js script in the ToDo component
+
+```html
+<apex:includeScript value="{!URLFOR($Resource.app)}" />
+```
+
+- Copy in todo html code into ToDo component
+	- remove the base.css stylesheet include in the head tag
+	- remove the js include tags at the bottom of the file
+	- find autofocus and set it to autofocus="true"
+	- find all input and meta tags and be sure to end them
+	- Modify the TodoList.page to include the Todo.component 
+	
+```html
+<apex:component controller="TodoListService">
+	<head>
+		<meta charset="utf-8" />
+		<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
+		<title>Knockout.js • TodoMVC</title>
+	</head>
+	<body>
+		<section id="todoapp">
+			<header id="header">
+				<h1>todos</h1>
+				<input id="new-todo" data-bind="value: current, valueUpdate: 'afterkeydown', enterKey: add" placeholder="What needs to be done?" autofocus="true"/>
+			</header>
+			<section id="main" data-bind="visible: todos().length">
+				<input id="toggle-all" data-bind="checked: allCompleted" type="checkbox"/>
+				<label for="toggle-all">Mark all as complete</label>
+				<ul id="todo-list" data-bind="foreach: filteredTodos">
+					<li data-bind="css: { completed: completed, editing: editing }">
+						<div class="view">
+							<input class="toggle" data-bind="checked: completed" type="checkbox"/>
+							<label data-bind="text: title, event: { dblclick: $root.editItem }"></label>
+							<button class="destroy" data-bind="click: $root.remove"></button>
+						</div>
+						<input class="edit" data-bind="value: title, valueUpdate: 'afterkeydown', enterKey: $root.stopEditing, selectAndFocus: editing, event: { blur: $root.stopEditing }"/>
+					</li>
+				</ul>
+			</section>
+			<footer id="footer" data-bind="visible: completedCount() || remainingCount()">
+				<span id="todo-count">
+					<strong data-bind="text: remainingCount">0</strong>
+					<span data-bind="text: getLabel( remainingCount )"></span> left
+				</span>
+				<ul id="filters">
+					<li>
+						<a data-bind="css: { selected: showMode() == 'all' }" href="#/all">All</a>
+					</li>
+					<li>
+						<a data-bind="css: { selected: showMode() == 'active' }" href="#/active">Active</a>
+					</li>
+					<li>
+						<a data-bind="css: { selected: showMode() == 'completed' }" href="#/completed">Completed</a>
+					</li>
+				</ul>
+				<button id="clear-completed" data-bind="visible: completedCount, click: removeCompleted">
+					Clear completed (<span data-bind="text: completedCount"></span>)
+				</button>
+			</footer>
+		</section>
+		<footer id="info">
+			<p>Double-click to edit a todo</p>
+			<p>Original Knockout version from <a href="https://github.com/ashish01/knockoutjs-todos">Ashish Sharma</a></p>
+			<p>Rewritten to use Knockout 2.0 and standard template by <a href="http://knockmeout.net">Ryan Niemeyer</a></p>
+			<p>Patches/fixes for cross-browser compat: <a href="http://twitter.com/addyosmani">Addy Osmani</a></p>
+			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+		</footer>
+	</body>
+	<apex:includeScript value="{!URLFOR($Resource.app)}" />
+</apex:component>
+```
+
+
+### Test the ported app:
+
 - Login as the user and test the basic todo list.
+	- add some todo items
+	- items are stored in a local cookie
+	- log out and log back in
+
+### Enhance the app to persist todo item in salesforce
+
 - Create a database table (or sObject aka Schema-Object) in salesforce to save our data.
 	- App Setup -> Create -> Objects -> New Custom Object
 	- Call the object ToDo List, set the following fields (that corresponds with the Todo js model):
@@ -201,12 +295,32 @@ todo-list
 - Create a POJO value object that contains all data required for the UI model (data structure matches the Todo js model):
 
 ```java
-  public with sharing class Todo {
-	  public String recordId = '';
-	  public String title = '';
-	  public Boolean completed = false;
-	  public Boolean editing = false;
-  }
+	public with sharing class Todo {
+		public String recordId;
+		public String title;
+		public Boolean completed;
+		public Boolean editing;
+	}
+```
+
+- Change the Todo js model to set the completed & recordId variables if they are not set:
+
+```js
+	var Todo = function (title, recordId, completed) {
+		this.recordId = ko.observable(recordId == null? '' : recordId);
+		this.title = ko.observable(title);
+		this.completed = ko.observable(completed == null? false: completed);
+		this.editing = ko.observable(false);
+	};
+```
+
+- Modify the initialization of the self.todos observable array to set the additional constructor variable:
+
+```js
+	self.todos = ko.observableArray(ko.utils.arrayMap(todos, function (todo) {
+		return new Todo(todo.title, todo.recordId, todo.completed);
+	}));
+
 ```
 
 - Create a APEX Remoting JS Service to CRUD the Todo list, call the class TodoListService.
@@ -214,28 +328,117 @@ todo-list
 	- add 2 @RemoteAction methods to this class: 1) getTodoList and 2) saveTodoList
 	
 ```java
-public with sharing class TodoListService {
-	@RemoteAction
-	public static Todo[] getTodoList(){
-		return null;
+	public with sharing class TodoListService {
+		@RemoteAction
+		public static Todo[] getTodoList(){
+			return null;
+		}
+		@RemoteAction 
+		public static Todo[] saveTodoList(Todo[] todoList){
+			return null;
+		}
 	}
-	@RemoteAction 
-	public static Todo[] saveTodoList(Todo[] todoList){
-		return null;
-	}
-}
 ```
 
 - Add the implementation for the TodoListService methods
-	- the getTodoList() implementation is straight forward
-	- the saveTodoList() implementation is tricky:
+- the getTodoList() implementation is straight forward
+	
+```java
+	@RemoteAction
+	public static Todo[] getTodoList(){
+		return retrieveTodoList();
+	}
+	private static Todo[] retrieveTodoList(){
+		Todo[] todoList = new Todo[]{};
+		ToDo_List__c[] records = retrieveListFromDb(UserInfo.getUserId(), getContactId());
 		
+		for(ToDo_List__c l : records){
+			Todo t = new Todo();
+			mapFromDbRecord(l, t);
+			todoList.add(t);
+		}
+		return todoList;
+	}
+	private static void mapFromDbRecord(ToDo_List__c dbRecord, Todo t){
+		t.recordId = dbRecord.Id;
+		t.title = dbRecord.Title__c;
+		t.completed = dbRecord.Completed__c;
+	}
+	private static ToDo_List__c[] retrieveListFromDb(Id userId, Id contactId){
+		return [	
+			SELECT 
+				Id, 
+				Title__c, 
+				Completed__c
+			FROM 
+				ToDo_List__c
+			WHERE
+				OwnerId =: userId
+			ORDER BY CreatedDate ASC];
+	}
+```
+- the saveTodoList() implementation is tricky:
 <pre>
 	Cruds the todo list by examining the recordId field of the Todo items in the following way:
 	- if the recordId matches the record Id in the database then update the record
 	- if the Todo item does not have a recordId then add it to the database
 	- remove the remaining items in the list (that were not added/removed) 
 </pre>
+
+```java
+	@RemoteAction 
+	public static Todo[] saveTodoList(Todo[] todoList){
+		saveTodoListToDb(todoList);
+		return getTodoList();
+	}
+	/**
+	* Cruds the todo list by examining the recordId field of the Todo items in the following way:
+	* <ul>
+	* <li>if the recordId matches the record Id in the database then update the record</li>
+	* <li>if the Todo item does not have a recordId then add it to the database</li>
+	* <li>Remove the remaining items in the list (that were not added/removed)</li>
+	* </ul> 
+	*/
+	private static void saveTodoListToDb(Todo[] todoList){
+		ToDo_List__c[] insertList = new ToDo_List__c[]{};
+		ToDo_List__c[] updateList = new ToDo_List__c[]{};
+		ToDo_List__c[] deleteList = new ToDo_List__c[]{};
+		
+		Id contactId = getContactId();
+		
+		Map<Id,ToDo_List__c> records = new Map<Id,ToDo_List__c>(
+			retrieveListFromDb(
+			UserInfo.getUserId(), 
+			contactId));
+		for(Integer i=todoList.size()-1;i>=0;i--){
+			Todo t = todoList[i];
+			if(t.recordId != null && t.recordId.length() > 0){
+				ToDo_List__c dbRecord = records.remove(t.recordId); // remove from list
+				if(dbRecord != null){
+					mapToDbRecord(t, dbRecord);
+					updateList.add(dbRecord);
+				}
+			}
+			else{
+				ToDo_List__c newTodo = new ToDo_List__c();
+				mapToDbRecord(t, newTodo);
+				insertList.add(newTodo);
+			}
+		}
+		deleteList.addAll(records.values());
+
+		Database.insert(insertList);
+		Database.update(updateList);
+		Database.delete(deleteList);
+	}
+	private static void mapToDbRecord(Todo t, ToDo_List__c dbRecord){
+		dbRecord.Title__c = t.title;
+		dbRecord.Completed__c = t.completed;
+	}
+	private static Id getContactId(){
+		return [SELECT Id, ContactId FROM User WHERE Id =: UserInfo.getUserId()].ContactId;
+	}
+```
 
 - Create testcases for CRUD operations
 - Create 2 new apex remoting js functions at the bottom of the ToDo.component that invoke the remote actions:
@@ -283,42 +486,46 @@ public with sharing class TodoListService {
 - Modify the app.resource to load the data from the TodoListService:
  
 ```js
-window.todo.loadTodoList(function(todos){
-	// bind a new instance of our view model to the page
-	var viewModel = new ViewModel(todos || []);
-	ko.applyBindings(viewModel);
-
-	// set up filter routing
-	/*jshint newcap:false */
-	Router({'/:filter': viewModel.showMode}).init();
-});
+	window.todo.loadTodoList(function(todos){
+		// bind a new instance of our view model to the page
+		var viewModel = new ViewModel(todos || []);
+		ko.applyBindings(viewModel);
+	
+		// set up filter routing
+		/*jshint newcap:false */
+		Router({'/:filter': viewModel.showMode}).init();
+	});
 ```
-- Modify the app.resource to save and reload the data from the TodoListService:
+- Modify the app.resource to save and reload-rebind the data from the TodoListService:
+
 ```js
-// internal computed observable that fires whenever anything changes in our todos
-ko.computed(function () {
-	window.todo.persistTodoList(self.todos, function(todos){
-		_.each(todos, function(element, index, list){
-			_.each(self.todos(), function(innerElement, innerIndex, innerList){
-				if(element.title == innerElement.title()){
-					innerElement.recordId(element.recordId);
-				}
+	// internal computed observable that fires whenever anything changes in our todos
+	ko.computed(function () {
+		window.todo.persistTodoList(self.todos, function(todos){
+			_.each(todos, function(element, index, list){
+				_.each(self.todos(), function(innerElement, innerIndex, innerList){
+					if(element.title == innerElement.title()){
+						innerElement.recordId(element.recordId);
+					}
+				});
 			});
 		});
-	});
-}).extend({
-	throttle: 500
-}); // save at most twice per second
+	}).extend({
+		throttle: 500
+	}); // save at most twice per second
 ```
 
-- Combine the Todo list with a salesforce contact:
-	- Add a contact lookup column to the ToDo_List database table
-	- Modify the TodoListService to set this contact field for every new record.
-		- The User table has column for ContactId
-	- Modify the contact page layout to add the TodoList related list and add the relevant columns
-	- At this point each todo list item is assigned to the contact that created the issue.
-		- Let's add the ability to assign the todo list item to another user
-			- Add a POJO to house the data
+### Test the app and observe the todos being saved to the database 
+
+### Combine the Todo list with a salesforce contact: 
+
+- Add a contact lookup column to the ToDo_List database table
+- Modify the TodoListService to set this contact field for every new record.
+	- The User table has column for ContactId
+- Modify the contact page layout to add the TodoList related list and add the relevant columns
+- At this point each todo list item is assigned to the contact that created the issue.
+	- Let's add the ability to assign the todo list item to another user
+	- Add a POJO to house the data
 			
 ```java
 	public with sharing class TodoContact {
