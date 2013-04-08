@@ -217,7 +217,7 @@ todo-list
 	- Modify the TodoList.page to include the Todo.component 
 	
 ```html
-<apex:component controller="TodoListService">
+<apex:component>
 	<head>
 		<meta charset="utf-8" />
 		<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
@@ -350,7 +350,7 @@ todo-list
 	}
 	private static Todo[] retrieveTodoList(){
 		Todo[] todoList = new Todo[]{};
-		ToDo_List__c[] records = retrieveListFromDb(UserInfo.getUserId(), getContactId());
+		ToDo_List__c[] records = retrieveListFromDb(UserInfo.getUserId());
 		
 		for(ToDo_List__c l : records){
 			Todo t = new Todo();
@@ -364,7 +364,7 @@ todo-list
 		t.title = dbRecord.Title__c;
 		t.completed = dbRecord.Completed__c;
 	}
-	private static ToDo_List__c[] retrieveListFromDb(Id userId, Id contactId){
+	private static ToDo_List__c[] retrieveListFromDb(Id userId){
 		return [	
 			SELECT 
 				Id, 
@@ -404,12 +404,10 @@ todo-list
 		ToDo_List__c[] updateList = new ToDo_List__c[]{};
 		ToDo_List__c[] deleteList = new ToDo_List__c[]{};
 		
-		Id contactId = getContactId();
 		
 		Map<Id,ToDo_List__c> records = new Map<Id,ToDo_List__c>(
 			retrieveListFromDb(
-			UserInfo.getUserId(), 
-			contactId));
+			UserInfo.getUserId());
 		for(Integer i=todoList.size()-1;i>=0;i--){
 			Todo t = todoList[i];
 			if(t.recordId != null && t.recordId.length() > 0){
@@ -434,9 +432,6 @@ todo-list
 	private static void mapToDbRecord(Todo t, ToDo_List__c dbRecord){
 		dbRecord.Title__c = t.title;
 		dbRecord.Completed__c = t.completed;
-	}
-	private static Id getContactId(){
-		return [SELECT Id, ContactId FROM User WHERE Id =: UserInfo.getUserId()].ContactId;
 	}
 ```
 
@@ -504,7 +499,8 @@ todo-list
 		window.todo.persistTodoList(self.todos, function(todos){
 			_.each(todos, function(element, index, list){
 				_.each(self.todos(), function(innerElement, innerIndex, innerList){
-					if(element.title == innerElement.title()){
+					if(element.title == innerElement.title() &&
+							element.recordId != innerElement.recordId()){
 						innerElement.recordId(element.recordId);
 					}
 				});
@@ -519,7 +515,7 @@ todo-list
 
 ### Combine the Todo list with a salesforce contact: 
 
-- Add a contact lookup column to the ToDo_List database table
+- Add a contact lookup column to the ToDo List database table
 - Modify the TodoListService to set this contact field for every new record.
 	- The User table has column for ContactId
 - Modify the contact page layout to add the TodoList related list and add the relevant columns
@@ -598,8 +594,40 @@ todo-list
 		t.assignee = new TodoContact();
 		t.assignee.name = dbRecord.Contact__r.Name;
 		t.assignee.recordId = dbRecord.Contact__r.Id;
+	}	
+```
+
+- Ensure that the Contact__c is set to the contact o the logged in user when an assignee is not provided
+- Modify the TodoListService todo record selection retrieval criteria to include items in the list that are assigned to the user
+
+```java
+	ToDo_List__c newTodo = new ToDo_List__c();
+	mapToDbRecord(t, newTodo);
+	if(newTodo.Contact__c == null){
+		newTodo.Contact__c = contactId;
+	}
+	insertList.add(newTodo);
+```
+
+```java
+	private static ToDo_List__c[] retrieveListFromDb(Id userId, Id contactId){
+		return [	
+			SELECT 
+				Id, 
+				Title__c, 
+				Completed__c,
+				Contact__r.Id,
+				Contact__r.Name
+			FROM 
+				ToDo_List__c
+			WHERE
+				OwnerId =: userId
+			OR
+				Contact__c =: contactId
+			ORDER BY CreatedDate ASC];
 	}
 ```
+
 - Make the corresponding js model changes to accomodate the assignee:
 			
 ```js
@@ -653,20 +681,7 @@ todo-list
 ```js
 	self.contacts = ko.observableArray([]);
 ```
-- Let's add the assignee control to the todo list:
-			
-```html
-	<div class="btn-group assignee" >
-		<a class="btn btn-primary btn-mini" href="#"><i class="icon-user icon-white"></i> <span data-bind="text: assignee() != null ? assignee().name : ''"></span></a>
-		<a class="btn btn-primary btn-mini dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
-		<ul class="dropdown-menu" data-bind="foreach: {data: $root.contacts, as: 'contact'}">
-			 <li><a href="#" data-bind="click: $root.assignContact.bind($data, todo, contact)"><i class="icon-hand-up"></i> <span data-bind="text: name"></span></a></li>
-		</ul>
-	</div>
-	<div class="assignee-readonly">
-		<i class="icon-user icon-black"></i> <span data-bind="text: assignee() != null ? assignee().name : ''"></span>
-	</div>
-```
+
 - load the contacts when the app is initialized
 			
 ```js
@@ -675,7 +690,7 @@ todo-list
 		self.reloadContacts = function(){
 			window.todo.loadContacts(function(contacts){
 				_.each(contacts, function(element, index, list){
-					viewModel.contacts.push(new TodoContact(element.name, element.recordId));
+					self.contacts.push(new TodoContact(element.name, element.recordId));
 				});
 			});
 		}
@@ -702,6 +717,26 @@ todo-list
 	}
 ```
 
+- Let's add the assignee control to the todo list (be sure to add it inside the view div):
+			
+```html
+	<div class="btn-group assignee" >
+		<a class="btn btn-primary btn-mini" href="#"><i class="icon-user icon-white"></i> <span data-bind="text: assignee() != null ? assignee().name : ''"></span></a>
+		<a class="btn btn-primary btn-mini dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+		<ul class="dropdown-menu" data-bind="foreach: {data: $root.contacts, as: 'contact'}">
+			 <li><a href="#" data-bind="click: $root.assignContact.bind($data, todo, contact)"><i class="icon-hand-up"></i> <span data-bind="text: name"></span></a></li>
+		</ul>
+	</div>
+	<div class="assignee-readonly">
+		<i class="icon-user icon-black"></i> <span data-bind="text: assignee() != null ? assignee().name : ''"></span>
+	</div>
+```
+
+- The filteredTodos foreach should be changed to specify the alias:
+```html
+	foreach: {data: filteredTodos, as: 'todo'}
+```
+
 - Wire it into the click event on the select-list:
 			
 ```html
@@ -709,6 +744,7 @@ todo-list
 ````
 
 - We should style the assignee drop down to make it seem more integrated and only allow changing the assignee for uncompleted tasks:
+- Change the body styling to body#todoappbody
 
 ```css
 	#todo-list li div.view div.assignee{
@@ -748,23 +784,5 @@ todo-list
 	}
 ```
 
-- Modify the TodoListService todo record selection retrieval criteria to include items in the list that are assigned to the user
-			
-```java
-	private static ToDo_List__c[] retrieveListFromDb(Id userId, Id contactId){
-		return [	
-			SELECT 
-				Id, 
-				Title__c, 
-				Completed__c,
-				Contact__r.Id,
-				Contact__r.Name
-			FROM 
-				ToDo_List__c
-			WHERE
-				OwnerId =: userId
-			OR
-				Contact__c =: contactId
-			ORDER BY CreatedDate ASC];
-	}
-```
+
+
