@@ -18,7 +18,6 @@
     <myProfilePage>MyProfilePage</myProfilePage>
     <portal>Customer Portal</portal>
     <requireInsecurePortalAccess>false</requireInsecurePortalAccess>
-    <siteAdmin>todolist@ncino.com</siteAdmin>
     <siteTemplate>SiteTemplate</siteTemplate>
     <siteType>Visualforce</siteType>
     <subdomain>todolist-ncino-developer-edition</subdomain>
