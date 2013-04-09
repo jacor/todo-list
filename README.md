@@ -1,5 +1,7 @@
-todo-list
-=========
+Simple todo list on the force.com platform
+==========================================
+
+![ncino logo](http://www.ncino.com/assets/images/logo.jpg)
 
 # Steps To Create Application
 - Based on the TodoMVC App: http://todomvc.com/architecture-examples/knockoutjs/
@@ -17,7 +19,6 @@ todo-list
 		- Set the Default New User License and Default New User Profile to High Volume Customer Portal
 	- Enable login for the site: App Setup -> Develop -> Site -> Login Settings -> Edit, set My Profile Page to MyProfilePage
 
-## START DEMO HERE
 
 ### Register a new user on the site:
 	- Create a new account that all the registered site users will belong to. Call it TodoList Account
