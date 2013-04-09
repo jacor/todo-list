@@ -223,7 +223,7 @@ todo-list
 		<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
 		<title>Knockout.js • TodoMVC</title>
 	</head>
-	<body>
+	<body id="todolistapp">
 		<section id="todoapp">
 			<header id="header">
 				<h1>todos</h1>
