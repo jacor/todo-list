@@ -784,5 +784,7 @@ Simple todo list on the force.com platform
 	}
 ```
 
+## License
 
+MIT License
 
