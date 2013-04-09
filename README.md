@@ -1,7 +1,6 @@
 Simple todo list on the force.com platform
-==========================================
-
-![ncino logo](http://www.ncino.com/assets/images/logo.jpg)
+===========================================
+![force logo](http://www.force.com/common/assets/img/header-logo-update.png)
 
 # Steps To Create Application
 - Based on the TodoMVC App: http://todomvc.com/architecture-examples/knockoutjs/
