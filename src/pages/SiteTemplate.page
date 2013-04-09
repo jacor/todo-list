@@ -8,6 +8,8 @@
 	  </apex:insert>
 	</div>
   </div>
+<hr/>
+<hr/>
   <apex:insert name="body"/>
   <apex:insert name="footer">
     <hr/>
